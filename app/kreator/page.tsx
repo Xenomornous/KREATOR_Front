@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { blockTypes } from "@/app/blocks/blocks";
 import BlockRenderer from "@/app/blocks/blocksRender";
+// kod
 
 type Block = {
   id: string;

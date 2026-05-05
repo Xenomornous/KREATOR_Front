@@ -16,13 +16,12 @@ export default function ModulePage() {
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
+  const userDEBUG = "user1" as string;            
 
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const res = await fetch(
-          `https://localhost:7294/api/lessons/user1/${moduleId}`
-        );
+        const res = await fetch(`https://localhost:7294/api/lessons/${userDEBUG}/${moduleId}`);
 
         const data = await res.json();
         setLessons(data);
@@ -108,26 +107,6 @@ export default function ModulePage() {
                 >
                   <h3>{lesson.lesson_Name}</h3>
                   <p style={{ opacity: 0.6 }}>Wejdź do lekcji</p>
-
-                  {/* EDIT BUTTON */}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      router.push(
-                        `/kreator?lesson=${lesson.lesson_Id}&module=${moduleId}`
-                      );
-                    }}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Edytuj lekcję
-                  </button>
                 </div>
               </Link>
             ))}

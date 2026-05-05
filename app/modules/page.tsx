@@ -16,11 +16,12 @@ type Module = {
 export default function ModulesPage() {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
+  const userDEBUG = "user1" as string;              /// DEBUG USUNAC !!!!
 
   useEffect(() => {
     async function fetchModules() {
       try {
-        const res = await fetch("https://localhost:7294/api/modules/user1");
+        const res = await fetch(`https://localhost:7294/api/modules/${userDEBUG}`);
         const data = await res.json();
 
         setModules(data);

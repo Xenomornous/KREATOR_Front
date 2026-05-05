@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { blockTypes } from "@/app/blocks/blocks";
 import BlockRenderer from "@/app/blocks/blocksRender";
-// kod
 
 type Block = {
   id: string;
@@ -11,7 +12,52 @@ type Block = {
 };
 
 export default function Kreator() {
+  const searchParams = useSearchParams();
+
+  // ✅ POPRAWKA: query params zamiast useParams
+  const lectureId = searchParams.get("lecture") || "";
+  const moduleId = searchParams.get("module") || "";
+  const lessonId = searchParams.get("lesson") || "";
+
   const [slots, setSlots] = useState<(Block | null)[]>(Array(10).fill(null));
+
+  useEffect(() => {
+    if (!lectureId) return;
+
+    const load = async () => {
+      try {
+        const res = await fetch(
+          `https://localhost:7294/api/lectures_json/${lectureId}`
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (!data.lecture_json) return;
+
+        const parsed = JSON.parse(data.lecture_json);
+
+        if (!parsed.blocks) return;
+
+        const newSlots: (Block | null)[] = Array(10).fill(null);
+
+        parsed.blocks.forEach((b: any) => {
+          newSlots[b.position] = {
+            id: b.id,
+            type: b.type,
+            content: b.content,
+          };
+        });
+
+        setSlots(newSlots);
+      } catch (err) {
+        console.error("LOAD ERROR:", err);
+      }
+    };
+
+    load();
+  }, [lectureId]);
 
   function handleAdd(type: string, index: number) {
     const blockDef = blockTypes.find((b) => b.type === type);
@@ -23,7 +69,7 @@ export default function Kreator() {
       const newBlock: Block = {
         id: crypto.randomUUID(),
         type,
-        content: structuredClone(blockDef.defaultContent)
+        content: structuredClone(blockDef.defaultContent),
       };
 
       const temp = next[index];
@@ -53,22 +99,98 @@ export default function Kreator() {
     });
   }
 
+  async function handleSave() {
+    const userDEBUG = "user1";
+
+    if (!lectureId) {
+      console.error("❌ lectureId is missing");
+      return;
+    }
+
+    const blocks = slots
+      .filter((b): b is Block => b !== null)
+      .map((block, index) => ({
+        id: block.id,
+        type: block.type,
+        position: index,
+        content: block.content,
+      }));
+
+    const payload = {
+      lecture_id: lectureId,
+      lecture_name: "Grammar",
+      mod_user: userDEBUG,
+      lecture_json: JSON.stringify({ blocks }),
+    };
+
+    try {
+      const res = await fetch("https://localhost:7294/api/lectures_json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Save failed");
+
+      showToast("Zapisano lecture_json", "success");
+    } catch (err) {
+      showToast("Błąd zapisu danych", "error");
+    }
+  }
+
+  // TOAST
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | null }>({
+  message: "",
+  type: null,
+});
+
+function showToast(message: string, type: "success" | "error") {
+  setToast({ message, type });
+
+  setTimeout(() => {
+    setToast({ message: "", type: null });
+  }, 5000);
+}
+
   return (
     <div
       style={{
         display: "grid",
         gridTemplateColumns: "250px 1fr",
         height: "100vh",
-        overflow: "hidden"
+        overflow: "hidden",
+        position: "relative",
       }}
     >
+      {/* SAVE BUTTON */}
+      <button
+        onClick={handleSave}
+        style={{
+          position: "absolute",
+          top: "15px",
+          right: "15px",
+          zIndex: 1000,
+          padding: "10px 16px",
+          background: "#111",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        }}
+      >
+        Zapisz
+      </button>
 
       {/* LEFT */}
       <div
         style={{
           borderRight: "1px solid #ddd",
           padding: "10px",
-          overflowY: "auto"
+          overflowY: "auto",
         }}
       >
         <h3>Bloki</h3>
@@ -84,7 +206,7 @@ export default function Kreator() {
               marginBottom: "8px",
               cursor: "grab",
               borderRadius: "6px",
-              background: "white"
+              background: "white",
             }}
           >
             {b.label}
@@ -97,7 +219,7 @@ export default function Kreator() {
         style={{
           padding: "10px",
           overflowY: "auto",
-          minWidth: 0
+          minWidth: 0,
         }}
       >
         <h3>Grid</h3>
@@ -106,7 +228,7 @@ export default function Kreator() {
           style={{
             display: "grid",
             gridTemplateRows: "repeat(10, minmax(120px, auto))",
-            gap: "12px"
+            gap: "12px",
           }}
         >
           {slots.map((block, index) => (
@@ -126,7 +248,7 @@ export default function Kreator() {
                 minHeight: "120px",
                 padding: "8px",
                 background: block ? "white" : "#f7f7f7",
-                minWidth: 0
+                minWidth: 0,
               }}
             >
               {block ? (
@@ -135,10 +257,7 @@ export default function Kreator() {
                   onDragStart={(e) =>
                     e.dataTransfer.setData("blockId", block.id)
                   }
-                  style={{
-                    minWidth: 0,
-                    overflow: "hidden"
-                  }}
+                  style={{ minWidth: 0, overflow: "hidden" }}
                 >
                   <div style={{ fontWeight: "bold" }}>{block.type}</div>
 
@@ -147,31 +266,26 @@ export default function Kreator() {
                     onChange={(newContent: any) => {
                       setSlots((prev) =>
                         prev.map((b) =>
-                          b?.id === block.id
-                            ? { ...b, content: newContent }
-                            : b
+                          b?.id === block.id ? { ...b, content: newContent } : b
                         )
                       );
                     }}
                   />
 
-                  {/* ✅ USUŃ BLOK */}
                   <button
                     onClick={() =>
                       setSlots((prev) =>
-                        prev.map((b) =>
-                          b?.id === block.id ? null : b
-                        )
+                        prev.map((b) => (b?.id === block.id ? null : b))
                       )
                     }
                     style={{
                       marginTop: "8px",
-                      background: "#e2e2e2",
+                      background: "#999",
                       color: "white",
                       border: "none",
                       padding: "6px 10px",
                       borderRadius: "6px",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     Usuń blok
@@ -184,6 +298,23 @@ export default function Kreator() {
           ))}
         </div>
       </div>
+      {toast.type && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            padding: "12px 16px",
+            borderRadius: "8px",
+            color: "white",
+            fontWeight: "bold",
+            background: toast.type === "success" ? "green" : "red",
+            zIndex: 9999,
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }

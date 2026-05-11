@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -11,19 +11,23 @@ type Lesson = {
 
 export default function ModulePage() {
   const params = useParams();
-  const router = useRouter();
+
   const moduleId = params.moduleId as string;
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
-  const userDEBUG = "user1" as string;            
+
+  const userDEBUG = "user1"; /// DEBUG USUNAC
 
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const res = await fetch(`https://localhost:7294/api/lessons/${userDEBUG}/${moduleId}`);
+        const res = await fetch(
+          `https://localhost:7294/api/lessons/${userDEBUG}/${moduleId}`
+        );
 
         const data = await res.json();
+
         setLessons(data);
       } catch (err) {
         console.error("ERROR FETCH LESSONS:", err);
@@ -36,83 +40,397 @@ export default function ModulePage() {
   }, [moduleId]);
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      
-      {/* HEADER */}
-      <div
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        background: "#f8faf8",
+        fontFamily: "Inter, sans-serif",
+        color: "#123524"
+      }}
+    >
+      {/* SIDEBAR */}
+      <aside
         style={{
-          height: "60px",
-          borderBottom: "1px solid #ddd",
+          width: "280px",
+          background: "white",
+          borderRight: "1px solid #e3ebe5",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           justifyContent: "space-between",
-          padding: "0 20px",
-          background: "white"
+          padding: "24px",
+          position: "sticky",
+          top: 0,
+          height: "100vh"
         }}
       >
-        <div style={{ fontWeight: "bold" }}>
-          📚 Moduł: {moduleId}
-        </div>
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <div>Moje konto</div>
+        <div>
+          {/* LOGO */}
           <div
             style={{
-              width: "35px",
-              height: "35px",
-              borderRadius: "50%",
-              background: "#ddd"
+              marginBottom: "40px"
             }}
-          />
+          >
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: 900
+              }}
+            >
+              EduPlatform
+            </div>
+
+            <div
+              style={{
+                color: "#6b7b72",
+                marginTop: "6px",
+                fontSize: "14px"
+              }}
+            >
+              Panel nauki
+            </div>
+          </div>
+
+          {/* NAVIGATION */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              marginBottom: "36px"
+            }}
+          >
+            <SidebarItem
+              label="Panel główny"
+              href="/dashboard"
+            />
+
+            <SidebarItem
+              active
+              label="Moduły"
+              href="/modules"
+            />
+
+            <SidebarItem
+              label="Postępy"
+              href="/progress"
+            />
+
+            <SidebarItem
+              label="Ustawienia"
+              href="/settings"
+            />
+          </div>
+
+          {/* CURRENT MODULE */}
+          <div>
+            <div
+              style={{
+                fontSize: "13px",
+                fontWeight: 700,
+                color: "#6b7b72",
+                marginBottom: "16px",
+                textTransform: "uppercase",
+                letterSpacing: "1px"
+              }}
+            >
+              Aktualny moduł
+            </div>
+
+            <div
+              style={{
+                padding: "18px",
+                borderRadius: "18px",
+                background: "#123524",
+                color: "white"
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: "18px",
+                  marginBottom: "8px"
+                }}
+              >
+                {moduleId}
+              </div>
+
+              <div
+                style={{
+                  opacity: 0.8,
+                  fontSize: "14px"
+                }}
+              >
+                {lessons.length} lekcji
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* PROFILE */}
+        <div
+          style={{
+            paddingTop: "20px",
+            borderTop: "1px solid #edf2ee"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px"
+            }}
+          >
+            <div
+              style={{
+                width: "46px",
+                height: "46px",
+                borderRadius: "999px",
+                background: "#dff3e5"
+              }}
+            />
+
+            <div>
+              <div
+                style={{
+                  fontWeight: 700
+                }}
+              >
+                Jan Kowalski
+              </div>
+
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#6b7b72"
+                }}
+              >
+                Uczeń
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       {/* CONTENT */}
-      <div
+      <section
         style={{
           flex: 1,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "#f5f5f5"
+          flexDirection: "column"
         }}
       >
-        {loading ? (
-          <div>Ładowanie...</div>
-        ) : lessons.length === 0 ? (
-          <div>Brak lekcji</div>
-        ) : (
+        {/* HEADER */}
+        <header
+          style={{
+            height: "90px",
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(10px)",
+            borderBottom: "1px solid #e3ebe5",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 40px",
+            position: "sticky",
+            top: 0,
+            zIndex: 50
+          }}
+        >
+          {/* LEFT */}
+          <div>
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#6b7b72",
+                marginBottom: "4px"
+              }}
+            >
+              Moduły / {moduleId}
+            </div>
+
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "28px"
+              }}
+            >
+              Moduł: {moduleId} 📚
+            </h1>
+          </div>
+
+          {/* RIGHT */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 200px)",
-              gap: "30px"
+              display: "flex",
+              alignItems: "center",
+              gap: "16px"
             }}
           >
-            {lessons.map((lesson) => (
-              <Link
-                key={lesson.lesson_Id}
-                href={`/modules/${moduleId}/${lesson.lesson_Id}`}
-                style={{ textDecoration: "none", color: "black" }}
-              >
-                <div
+            <input
+              placeholder="Szukaj lekcji..."
+              style={{
+                padding: "12px 16px",
+                borderRadius: "12px",
+                border: "1px solid #dce5de",
+                background: "white",
+                outline: "none",
+                width: "240px"
+              }}
+            />
+
+            <button style={headerButton}>
+              Profil
+            </button>
+          </div>
+        </header>
+
+        {/* MAIN */}
+        <div
+          style={{
+            flex: 1,
+            padding: "40px"
+          }}
+        >
+          {loading ? (
+            <div
+              style={{
+                color: "#6b7b72",
+                fontSize: "18px"
+              }}
+            >
+              Ładowanie lekcji...
+            </div>
+          ) : lessons.length === 0 ? (
+            <div
+              style={{
+                background: "white",
+                borderRadius: "24px",
+                padding: "60px",
+                textAlign: "center",
+                border: "1px solid #e5ece7",
+                color: "#6b7b72"
+              }}
+            >
+              Brak lekcji w module
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "24px"
+              }}
+            >
+              {lessons.map((lesson) => (
+                <Link
+                  key={lesson.lesson_Id}
+                  href={`/modules/${moduleId}/${lesson.lesson_Id}`}
                   style={{
-                    background: "white",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-                    textAlign: "center",
-                    cursor: "pointer"
+                    textDecoration: "none"
                   }}
                 >
-                  <h3>{lesson.lesson_Name}</h3>
-                  <p style={{ opacity: 0.6 }}>Wejdź do lekcji</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+                  <div
+                    style={{
+                      background: "white",
+                      borderRadius: "26px",
+                      padding: "28px",
+                      border: "1px solid #e5ece7",
+                      boxShadow:
+                        "0 12px 35px rgba(18,53,36,0.05)",
+                      transition: "0.2s",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "64px",
+                        height: "64px",
+                        borderRadius: "18px",
+                        background: "#dff3e5",
+                        marginBottom: "20px"
+                      }}
+                    />
+
+                    <h2
+                      style={{
+                        color: "#123524",
+                        marginBottom: "10px"
+                      }}
+                    >
+                      {lesson.lesson_Name}
+                    </h2>
+
+                    <p
+                      style={{
+                        color: "#6b7b72",
+                        marginBottom: "24px"
+                      }}
+                    >
+                      Kliknij aby otworzyć lekcję
+                    </p>
+
+                    <div
+                      style={{
+                        color: "#1f6b42",
+                        fontWeight: 700
+                      }}
+                    >
+                      Otwórz lekcję →
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }
+
+/* COMPONENTS */
+
+function SidebarItem({
+  label,
+  href,
+  active = false
+}: {
+  label: string;
+  href: string;
+  active?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      style={{
+        textDecoration: "none"
+      }}
+    >
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: "14px",
+          background: active ? "#123524" : "transparent",
+          color: active ? "white" : "#123524",
+          fontWeight: 600,
+          transition: "0.2s"
+        }}
+      >
+        {label}
+      </div>
+    </Link>
+  );
+}
+
+/* STYLES */
+
+const headerButton = {
+  padding: "12px 16px",
+  borderRadius: "12px",
+  border: "1px solid #dce5de",
+  background: "white",
+  cursor: "pointer",
+  fontWeight: 600,
+  color: "#123524"
+};

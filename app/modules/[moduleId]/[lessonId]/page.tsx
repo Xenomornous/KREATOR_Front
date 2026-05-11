@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Lecture = {
   lecture_Id: string;
@@ -30,9 +31,11 @@ export default function LessonPage() {
           `https://localhost:7294/api/lectures/${userDEBUG}/${moduleId}/${lessonId}`
         );
 
-        if (!res.ok) throw new Error("Nie udało się pobrać lectures");
+        if (!res.ok)
+          throw new Error("Nie udało się pobrać lectures");
 
         const data = await res.json();
+
         setLectures(data);
       } catch (err) {
         console.error("ERROR FETCH LECTURES:", err);
@@ -45,101 +48,441 @@ export default function LessonPage() {
   }, [lessonId]);
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      
-      {/* HEADER */}
-      <div
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        background: "#f8faf8",
+        fontFamily: "Inter, sans-serif",
+        color: "#123524"
+      }}
+    >
+      {/* SIDEBAR */}
+      <aside
         style={{
-          height: "60px",
+          width: "280px",
           background: "white",
-          borderBottom: "1px solid #ddd",
+          borderRight: "1px solid #e3ebe5",
           display: "flex",
-          alignItems: "center",
-          padding: "0 20px",
-          gap: "20px",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "24px",
+          position: "sticky",
+          top: 0,
+          height: "100vh"
         }}
       >
-        <button
-          onClick={() => router.back()}
+        <div>
+          {/* LOGO */}
+          <div
+            style={{
+              marginBottom: "40px"
+            }}
+          >
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: 900
+              }}
+            >
+              EduPlatform
+            </div>
+
+            <div
+              style={{
+                color: "#6b7b72",
+                marginTop: "6px",
+                fontSize: "14px"
+              }}
+            >
+              Panel nauki
+            </div>
+          </div>
+
+          {/* NAVIGATION */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              marginBottom: "36px"
+            }}
+          >
+            <SidebarItem
+              label="Panel główny"
+              href="/dashboard"
+            />
+
+            <SidebarItem
+              active
+              label="Moduły"
+              href="/modules"
+            />
+
+            <SidebarItem
+              label="Postępy"
+              href="/progress"
+            />
+
+            <SidebarItem
+              label="Ustawienia"
+              href="/settings"
+            />
+          </div>
+
+          {/* CURRENT LESSON */}
+          <div>
+            <div
+              style={{
+                fontSize: "13px",
+                fontWeight: 700,
+                color: "#6b7b72",
+                marginBottom: "16px",
+                textTransform: "uppercase",
+                letterSpacing: "1px"
+              }}
+            >
+              Aktualna lekcja
+            </div>
+
+            <div
+              style={{
+                padding: "18px",
+                borderRadius: "18px",
+                background: "#123524",
+                color: "white"
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: "18px",
+                  marginBottom: "8px"
+                }}
+              >
+                {lessonId}
+              </div>
+
+              <div
+                style={{
+                  opacity: 0.8,
+                  fontSize: "14px"
+                }}
+              >
+                {lectures.length} wykładów
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PROFILE */}
+        <div
           style={{
-            cursor: "pointer",
-            border: "none",
-            background: "none",
-            fontSize: "16px",
+            paddingTop: "20px",
+            borderTop: "1px solid #edf2ee"
           }}
         >
-          ← Powrót do modułu
-        </button>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px"
+            }}
+          >
+            <div
+              style={{
+                width: "46px",
+                height: "46px",
+                borderRadius: "999px",
+                background: "#dff3e5"
+              }}
+            />
 
-        <h2 style={{ fontSize: "18px", margin: 0 }}>
-          Lekcja: {lessonId}
-        </h2>
-      </div>
+            <div>
+              <div
+                style={{
+                  fontWeight: 700
+                }}
+              >
+                Jan Kowalski
+              </div>
+
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#6b7b72"
+                }}
+              >
+                Uczeń
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       {/* CONTENT */}
-      <div
+      <section
         style={{
           flex: 1,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "#f5f5f5",
+          flexDirection: "column"
         }}
       >
-        {loading ? (
-          <div>Ładowanie...</div>
-        ) : lectures.length === 0 ? (
-          <div>Brak lectures</div>
-        ) : (
+        {/* HEADER */}
+        <header
+          style={{
+            height: "90px",
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(10px)",
+            borderBottom: "1px solid #e3ebe5",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 40px",
+            position: "sticky",
+            top: 0,
+            zIndex: 50
+          }}
+        >
+          {/* LEFT */}
+          <div>
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#6b7b72",
+                marginBottom: "4px"
+              }}
+            >
+              Moduły / {moduleId} / {lessonId}
+            </div>
+
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "28px"
+              }}
+            >
+              Lekcja: {lessonId} 📘
+            </h1>
+          </div>
+
+          {/* RIGHT */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 200px)",
-              gap: "30px",
+              display: "flex",
+              alignItems: "center",
+              gap: "16px"
             }}
           >
-            {lectures.map((lecture) => (
-              <div
-                key={lecture.lecture_Id}
-                style={{
-                  background: "white",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-                  textAlign: "center",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  alignItems: "center",
-                }}
-              >
-                <h3>{lecture.lecture_Name}</h3>
-                <p style={{ opacity: 0.6, margin: 0 }}>Lecture</p>
+            <button
+              onClick={() => router.back()}
+              style={headerButton}
+            >
+              ← Powrót
+            </button>
 
-                {/* EDIT BUTTON */}
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/kreator?lecture=${lecture.lecture_Id}&lesson=${lessonId}&module=${moduleId}`
-                    )
-                  }
+            <input
+              placeholder="Szukaj wykładu..."
+              style={{
+                padding: "12px 16px",
+                borderRadius: "12px",
+                border: "1px solid #dce5de",
+                background: "white",
+                outline: "none",
+                width: "240px"
+              }}
+            />
+
+            <button style={headerButton}>
+              Profil
+            </button>
+          </div>
+        </header>
+
+        {/* MAIN */}
+        <div
+          style={{
+            flex: 1,
+            padding: "40px"
+          }}
+        >
+          {loading ? (
+            <div
+              style={{
+                color: "#6b7b72",
+                fontSize: "18px"
+              }}
+            >
+              Ładowanie wykładów...
+            </div>
+          ) : lectures.length === 0 ? (
+            <div
+              style={{
+                background: "white",
+                borderRadius: "24px",
+                padding: "60px",
+                textAlign: "center",
+                border: "1px solid #e5ece7",
+                color: "#6b7b72"
+              }}
+            >
+              Brak wykładów w tej lekcji
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "24px"
+              }}
+            >
+              {lectures.map((lecture) => (
+                <div
+                  key={lecture.lecture_Id}
                   style={{
-                    marginTop: "10px",
-                    padding: "6px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid #ccc",
                     background: "white",
-                    cursor: "pointer",
+                    borderRadius: "26px",
+                    padding: "28px",
+                    border: "1px solid #e5ece7",
+                    boxShadow:
+                      "0 12px 35px rgba(18,53,36,0.05)",
+                    display: "flex",
+                    flexDirection: "column"
                   }}
                 >
-                  Edytuj
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+                  <div
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      borderRadius: "18px",
+                      background: "#dff3e5",
+                      marginBottom: "20px"
+                    }}
+                  />
+
+                  <h2
+                    style={{
+                      color: "#123524",
+                      marginBottom: "10px"
+                    }}
+                  >
+                    {lecture.lecture_Name}
+                  </h2>
+
+                  <p
+                    style={{
+                      color: "#6b7b72",
+                      marginBottom: "28px"
+                    }}
+                  >
+                    Interaktywny wykład i zadania
+                  </p>
+
+                  {/* ACTIONS */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      marginTop: "auto"
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `/lecture/${lecture.lecture_Id}`
+                        )
+                      }
+                      style={primaryButton}
+                    >
+                      Otwórz
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `/kreator?lecture=${lecture.lecture_Id}&lesson=${lessonId}&module=${moduleId}`
+                        )
+                      }
+                      style={secondaryButton}
+                    >
+                      Edytuj
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }
+
+/* COMPONENTS */
+
+function SidebarItem({
+  label,
+  href,
+  active = false
+}: {
+  label: string;
+  href: string;
+  active?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      style={{
+        textDecoration: "none"
+      }}
+    >
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: "14px",
+          background: active ? "#123524" : "transparent",
+          color: active ? "white" : "#123524",
+          fontWeight: 600,
+          transition: "0.2s"
+        }}
+      >
+        {label}
+      </div>
+    </Link>
+  );
+}
+
+/* STYLES */
+
+const headerButton = {
+  padding: "12px 16px",
+  borderRadius: "12px",
+  border: "1px solid #dce5de",
+  background: "white",
+  cursor: "pointer",
+  fontWeight: 600,
+  color: "#123524"
+};
+
+const primaryButton = {
+  flex: 1,
+  padding: "12px",
+  borderRadius: "12px",
+  border: "none",
+  background: "#123524",
+  color: "white",
+  fontWeight: 700,
+  cursor: "pointer"
+};
+
+const secondaryButton = {
+  flex: 1,
+  padding: "12px",
+  borderRadius: "12px",
+  border: "1px solid #dce5de",
+  background: "white",
+  color: "#123524",
+  fontWeight: 700,
+  cursor: "pointer"
+};

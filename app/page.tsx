@@ -85,7 +85,7 @@ export default function Home() {
               fontSize: "64px",
               lineHeight: 1.1,
               marginBottom: "24px",
-              color: "#123524",
+              color: "#122535",
               fontWeight: 900
             }}
           >
@@ -99,7 +99,7 @@ export default function Home() {
           <p
             style={{
               fontSize: "18px",
-              color: "#4b6355",
+              color: "#4b5c63",
               lineHeight: 1.7,
               maxWidth: "650px",
               marginBottom: "32px"

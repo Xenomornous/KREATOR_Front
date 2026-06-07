@@ -1,8 +1,79 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
+
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleLogin(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
+
+    setError("");
+
+    if (!email.trim()) {
+      setError("Podaj adres email");
+      return;
+    }
+
+    if (!password) {
+      setError("Podaj hasło");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://localhost:7294/api/auth/login",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            email,
+            password
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(
+          data.message ??
+          "Błąd logowania"
+        );
+        return;
+      }
+
+      router.push("/dashboard");
+    }
+    catch {
+      setError(
+        "Nie udało się połączyć z serwerem"
+      );
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main
       style={{
@@ -123,6 +194,7 @@ export default function LoginPage() {
           </div>
 
           <form
+            onSubmit={handleLogin}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -133,10 +205,13 @@ export default function LoginPage() {
               <label style={label}>
                 Email
               </label>
-
               <input
                 type="email"
                 placeholder="twoj@email.com"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -146,9 +221,13 @@ export default function LoginPage() {
                 Hasło
               </label>
 
-              <input
+             <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -184,12 +263,34 @@ export default function LoginPage() {
                 Zapomniałeś hasła?
               </Link>
             </div>
-
+            {
+              error && (
+                <div
+                  style={{
+                    padding: "12px",
+                    borderRadius: "12px",
+                    background: "#ffe8e8",
+                    color: "#b00020",
+                    fontSize: "14px"
+                  }}
+                >
+                  {error}
+                </div>
+              )
+            }
             <button
               type="submit"
-              style={loginButton}
+              disabled={loading}
+              style={{
+                ...loginButton,
+                opacity: loading ? 0.7 : 1
+              }}
             >
-              Zaloguj się
+              {
+                loading
+                  ? "Logowanie..."
+                  : "Zaloguj się"
+              }
             </button>
           </form>
 
@@ -200,7 +301,7 @@ export default function LoginPage() {
               color: "#5b6f63"
             }}
           >
-            Nie masz konta?{" "}
+            Nie masz jeszcze konta?{" "}
             <Link
               href="/register"
               style={{

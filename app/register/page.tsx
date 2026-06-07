@@ -1,8 +1,107 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+
+  const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleRegister(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
+
+    setError("");
+
+    if (!username.trim()) {
+      setError("Podaj nazwę użytkownika");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Podaj adres email");
+      return;
+    }
+
+    if (!password) {
+      setError("Podaj hasło");
+      return;
+    }
+
+    if (password !== repeatPassword) {
+      setError("Hasła nie są identyczne");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError(
+        "Musisz zaakceptować regulamin"
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://localhost:7294/api/auth/register",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            email,
+            username,
+            password
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.errors) {
+          setError(
+            data.errors.join(", ")
+          );
+        } else {
+          setError(
+            data.message ??
+            "Błąd rejestracji"
+          );
+        }
+
+        return;
+      }
+
+      router.push("/dashboard");
+    }
+    catch {
+      setError(
+        "Nie udało się połączyć z serwerem"
+      );
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main
       style={{
@@ -123,6 +222,7 @@ export default function RegisterPage() {
           </div>
 
           <form
+            onSubmit={handleRegister}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -131,12 +231,16 @@ export default function RegisterPage() {
           >
             <div>
               <label style={label}>
-                Imię i nazwisko
+                Nazwa użytkownika
               </label>
 
               <input
                 type="text"
-                placeholder="Jan Kowalski"
+                placeholder="jan_kowalski"
+                value={username}
+                onChange={(e) =>
+                  setUsername(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -149,6 +253,10 @@ export default function RegisterPage() {
               <input
                 type="email"
                 placeholder="twoj@email.com"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -161,6 +269,10 @@ export default function RegisterPage() {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -173,6 +285,10 @@ export default function RegisterPage() {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={repeatPassword}
+                onChange={(e) =>
+                  setRepeatPassword(e.target.value)
+                }
                 style={input}
               />
             </div>
@@ -186,15 +302,43 @@ export default function RegisterPage() {
                 fontSize: "14px"
               }}
             >
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) =>
+                  setAcceptTerms(e.target.checked)
+                }
+              />
               Akceptuję regulamin i politykę prywatności
             </label>
-
+            {
+              error && (
+                <div
+                  style={{
+                    padding: "12px",
+                    borderRadius: "12px",
+                    background: "#ffe8e8",
+                    color: "#b00020",
+                    fontSize: "14px"
+                  }}
+                >
+                  {error}
+                </div>
+              )
+            }
             <button
               type="submit"
-              style={registerButton}
+              disabled={loading}
+              style={{
+                ...registerButton,
+                opacity: loading ? 0.7 : 1
+              }}
             >
-              Utwórz konto
+              {
+                loading
+                  ? "Tworzenie konta..."
+                  : "Utwórz konto"
+              }
             </button>
           </form>
 

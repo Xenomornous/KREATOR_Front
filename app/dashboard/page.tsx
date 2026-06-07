@@ -1,31 +1,43 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "../../src/context/AuthContext";
 
 export default function DashboardPage() {
+  const { user, loading, logout } = useAuth();
+
+  if (loading) {
+    return <div>Ładowanie...</div>;
+  }
+
+  console.log(user);
+  
   return (
+    
     <main
       style={{
         minHeight: "100vh",
         display: "flex",
-        background: "#f8faf8",
+        background:
+          "linear-gradient(to bottom right, #f4f7fb, #eef4ff)",
         fontFamily: "Inter, sans-serif",
-        color: "#123524"
+        color: "#0f172a"
       }}
     >
       {/* SIDEBAR */}
       <aside
         style={{
           width: "280px",
-          background: "white",
-          borderRight: "1px solid #e3ebe5",
+          background: "#0f172a",
+          borderRight: "1px solid #1e293b",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "24px",
           position: "sticky",
           top: 0,
-          height: "100vh"
+          height: "100vh",
+          boxShadow: "0 0 40px rgba(0,0,0,0.15)"
         }}
       >
         <div>
@@ -37,9 +49,9 @@ export default function DashboardPage() {
           >
             <div
               style={{
-                fontSize: "28px",
+                fontSize: "30px",
                 fontWeight: 900,
-                color: "#123524"
+                color: "white"
               }}
             >
               EduPlatform
@@ -47,7 +59,7 @@ export default function DashboardPage() {
 
             <div
               style={{
-                color: "#6b7b72",
+                color: "#94a3b8",
                 marginTop: "6px",
                 fontSize: "14px"
               }}
@@ -93,7 +105,7 @@ export default function DashboardPage() {
               style={{
                 fontSize: "13px",
                 fontWeight: 700,
-                color: "#6b7b72",
+                color: "#64748b",
                 marginBottom: "16px",
                 textTransform: "uppercase",
                 letterSpacing: "1px"
@@ -134,7 +146,7 @@ export default function DashboardPage() {
         <div
           style={{
             paddingTop: "20px",
-            borderTop: "1px solid #edf2ee"
+            borderTop: "1px solid #1e293b"
           }}
         >
           <div
@@ -149,26 +161,28 @@ export default function DashboardPage() {
                 width: "46px",
                 height: "46px",
                 borderRadius: "999px",
-                background: "#dff3e5"
+                background:
+                  "linear-gradient(135deg,#2563eb,#60a5fa)"
               }}
             />
 
             <div>
               <div
                 style={{
-                  fontWeight: 700
+                  fontWeight: 700,
+                  color: "white"
                 }}
               >
-                Jan Kowalski
+                {user?.username}
               </div>
 
               <div
                 style={{
                   fontSize: "13px",
-                  color: "#6b7b72"
+                  color: "#94a3b8"
                 }}
               >
-                Student
+                {user?.role}
               </div>
             </div>
           </div>
@@ -187,9 +201,9 @@ export default function DashboardPage() {
         <header
           style={{
             height: "90px",
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(10px)",
-            borderBottom: "1px solid #e3ebe5",
+            background: "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(18px)",
+            borderBottom: "1px solid #dbeafe",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -204,7 +218,7 @@ export default function DashboardPage() {
             <div
               style={{
                 fontSize: "14px",
-                color: "#6b7b72",
+                color: "#64748b",
                 marginBottom: "4px"
               }}
             >
@@ -214,10 +228,11 @@ export default function DashboardPage() {
             <h1
               style={{
                 margin: 0,
-                fontSize: "28px"
+                fontSize: "30px",
+                fontWeight: 800
               }}
             >
-              Welcome back 👋
+              Welcome back, {user?.username} 👋
             </h1>
           </div>
 
@@ -233,11 +248,13 @@ export default function DashboardPage() {
               placeholder="Search..."
               style={{
                 padding: "12px 16px",
-                borderRadius: "12px",
-                border: "1px solid #dce5de",
+                borderRadius: "14px",
+                border: "1px solid #dbeafe",
                 background: "white",
                 outline: "none",
-                width: "240px"
+                width: "240px",
+                boxShadow:
+                  "0 4px 20px rgba(37,99,235,0.05)"
               }}
             />
 
@@ -248,6 +265,11 @@ export default function DashboardPage() {
             <button style={headerButton}>
               Profile
             </button>
+            <button style={headerButton}
+            onClick={logout}
+          >
+            Logout
+          </button>
           </div>
         </header>
 
@@ -388,10 +410,13 @@ function SidebarItem({
         style={{
           padding: "14px 16px",
           borderRadius: "14px",
-          background: active ? "#123524" : "transparent",
-          color: active ? "white" : "#123524",
+          background: active
+            ? "linear-gradient(135deg,#2563eb,#3b82f6)"
+            : "transparent",
+          color: "white",
           fontWeight: 600,
-          transition: "0.2s"
+          transition: "0.25s ease",
+          cursor: "pointer"
         }}
       >
         {label}
@@ -419,17 +444,18 @@ function ModuleItem({
       <div
         style={{
           padding: "16px",
-          borderRadius: "16px",
-          background: "#f8fbf8",
-          border: "1px solid #e3ebe5",
-          cursor: "pointer"
+          borderRadius: "18px",
+          background: "#111c31",
+          border: "1px solid #1e293b",
+          cursor: "pointer",
+          transition: "0.25s ease"
         }}
       >
         <div
           style={{
             fontWeight: 700,
             marginBottom: "6px",
-            color: "#123524"
+            color: "white"
           }}
         >
           {title}
@@ -437,7 +463,7 @@ function ModuleItem({
 
         <div
           style={{
-            color: "#6b7b72",
+            color: "#94a3b8",
             fontSize: "14px"
           }}
         >
@@ -458,16 +484,19 @@ function StatCard({
   return (
     <div
       style={{
-        background: "white",
+        background: "rgba(255,255,255,0.8)",
         padding: "24px",
         borderRadius: "24px",
-        border: "1px solid #e5ece7",
-        boxShadow: "0 10px 30px rgba(18,53,36,0.04)"
+        border: "1px solid #dbeafe",
+        boxShadow:
+          "0 10px 40px rgba(37,99,235,0.08)",
+        backdropFilter: "blur(12px)",
+        transition: "0.25s ease"
       }}
     >
       <div
         style={{
-          color: "#6b7b72",
+          color: "#64748b",
           marginBottom: "12px"
         }}
       >
@@ -476,9 +505,9 @@ function StatCard({
 
       <div
         style={{
-          fontSize: "38px",
+          fontSize: "40px",
           fontWeight: 900,
-          color: "#123524"
+          color: "#2563eb"
         }}
       >
         {value}
@@ -509,11 +538,14 @@ function CourseCard({
     >
       <div
         style={{
-          background: "white",
-          borderRadius: "26px",
+          background: "rgba(255,255,255,0.85)",
+          borderRadius: "28px",
           padding: "28px",
-          border: "1px solid #e5ece7",
-          boxShadow: "0 12px 35px rgba(18,53,36,0.05)"
+          border: "1px solid #dbeafe",
+          boxShadow:
+            "0 12px 40px rgba(37,99,235,0.08)",
+          transition: "0.25s ease",
+          cursor: "pointer"
         }}
       >
         <div
@@ -521,7 +553,8 @@ function CourseCard({
             width: "60px",
             height: "60px",
             borderRadius: "18px",
-            background: "#dff3e5",
+            background:
+              "linear-gradient(135deg,#2563eb,#60a5fa)",
             marginBottom: "20px"
           }}
         />
@@ -531,7 +564,7 @@ function CourseCard({
             fontSize: "26px",
             fontWeight: 800,
             marginBottom: "10px",
-            color: "#123524"
+            color: "#0f172a"
           }}
         >
           {title}
@@ -539,7 +572,7 @@ function CourseCard({
 
         <div
           style={{
-            color: "#5f7167",
+            color: "#475569",
             marginBottom: "6px"
           }}
         >
@@ -548,7 +581,7 @@ function CourseCard({
 
         <div
           style={{
-            color: "#6b7b72",
+            color: "#64748b",
             marginBottom: "20px"
           }}
         >
@@ -558,7 +591,7 @@ function CourseCard({
         <div
           style={{
             height: "10px",
-            background: "#edf3ee",
+            background: "#e2e8f0",
             borderRadius: "999px",
             overflow: "hidden",
             marginBottom: "12px"
@@ -568,14 +601,15 @@ function CourseCard({
             style={{
               width: progress,
               height: "100%",
-              background: "#1f6b42"
+              background:
+                "linear-gradient(90deg,#2563eb,#60a5fa)"
             }}
           />
         </div>
 
         <div
           style={{
-            color: "#1f6b42",
+            color: "#2563eb",
             fontWeight: 700
           }}
         >
@@ -594,11 +628,13 @@ function ActivityItem({
   return (
     <div
       style={{
-        background: "white",
-        border: "1px solid #e5ece7",
+        background: "rgba(255,255,255,0.85)",
+        border: "1px solid #dbeafe",
         borderRadius: "18px",
         padding: "18px 22px",
-        color: "#4e6257"
+        color: "#334155",
+        boxShadow:
+          "0 8px 30px rgba(37,99,235,0.05)"
       }}
     >
       {text}
@@ -610,10 +646,12 @@ function ActivityItem({
 
 const headerButton = {
   padding: "12px 16px",
-  borderRadius: "12px",
-  border: "1px solid #dce5de",
-  background: "white",
+  borderRadius: "14px",
+  border: "1px solid #dbeafe",
+  background: "#eff6ff",
   cursor: "pointer",
-  fontWeight: 600,
-  color: "#123524"
+  fontWeight: 700,
+  color: "#2563eb",
+  transition: "0.25s ease",
+  boxShadow: "0 4px 20px rgba(37,99,235,0.06)"
 };
